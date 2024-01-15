@@ -1,0 +1,95 @@
+---
+title: "Benchmark Analyzer"
+server: shiny
+format: 
+  dashboard:
+    scrolling: true 
+---
+
+```{r echo=FALSE, message=FALSE, msg = F, warning = F, error = F}
+#| context: setup
+
+
+library(gauntlet)
+library(magrittr)
+
+package_load_q = purrr::quietly(gauntlet::package_load)
+
+tmp = c('shiny', 'lubridate'
+  ,"reactable", "reactablefmtr", "crosstalk", "plotly"
+  ,"bslib","bsicons", "htmltools") %>% 
+  package_load_q()
+
+library(tidyverse, quietly = TRUE)
+
+targets::tar_source(files = "R")
+
+```
+
+
+## Quarto
+
+```{r}
+#| panel: input
+
+fileInput(
+    inputId = "peak_force", label = "Upload Peak Force", multiple = F, accept = ".csv"
+  )
+
+fileInput(
+    inputId = "rate_force", label = "Upload RFD Data", multiple = F, accept = ".csv"
+  )
+
+```
+
+```{r}
+uiOutput("peak_force_trace")
+```
+
+```{r}
+reactableOutput('table_peak_force')
+```
+
+```{r}
+#| context: server
+
+peak_force = shiny::reactive({
+  file <- input$peak_force
+  ext <- tools::file_ext(file$datapath)
+  
+  req(file)
+  validate(need(ext == "csv", "Please upload a csv file"))
+  
+  temp_data = read.csv(file$datapath)
+  
+  assign("butt", temp_data, envir = .GlobalEnv)
+  
+  # temp_data %>% process_peak_force() %>%  print()
+  
+  temp_data  = temp_data %>% 
+    process_peak_force()
+  
+  return(temp_data)
+})
+
+output$table_peak_force <- renderReactable({
+  
+  tmp_table = peak_force() %>% 
+    reactable()
+
+  return(tmp_table)
+})
+
+
+output$peak_force_trace = renderUI({
+  tmp_plot = peak_force() %>% 
+    mk_viz_peak_force_trace()
+  
+  return(tmp_plot)
+})
+
+```
+
+
+
+
