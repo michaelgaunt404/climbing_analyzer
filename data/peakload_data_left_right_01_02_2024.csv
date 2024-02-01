@@ -1,0 +1,20 @@
+date,tag,comment,unit,type,left max weight,right max weight
+2024-30-01 17:16:19,test_openhand,end_session,I,left/right,112.5719058,111.4186806
+2024-30-01 17:12:02,test_halfcrimp,end_session,I,left/right,114.1377661,112.0361236
+2024-30-01 17:06:04,test_halfcrimp,end_session,I,left/right,109.0280379,108.1729123
+2024-17-01 23:52:13,test_halfcrimp,vacation,I,left/right,118.2348877,122.1525031
+2024-17-01 23:50:54,test_halfcrimp,vacation,I,left/right,121.3575761,120.4597532
+2024-13-01 15:27:41,train_pinch,,I,left/right,50.8161618,46.7728553
+2024-13-01 15:22:58,train_pinch,,I,left/right,47.8171168,47.0694707
+2024-13-01 15:20:25,training_openhand,,I,left/right,136.8501164,153.3656282
+2024-13-01 15:13:51,training_halfcrimp,,I,left/right,142.6036782,140.9498833
+2024-13-01 15:05:30,training_openhand,,I,left/right,135.8920949,150.4711695
+2024-13-01 15:02:01,training_halfcrimp,,I,left/right,141.5270257,133.9511416
+2024-09-01 19:23:23,training_halfcrimp,,I,left/right,137.6732770,137.5566224
+2024-09-01 19:22:25,training_halfcrimp,,I,left/right,145.0066765,140.3991411
+2024-09-01 18:39:57,training_openhand,,I,left/right,110.0883554,112.0903566
+2024-09-01 18:38:36,training_halfcrimp,,I,left/right,132.9404920,139.7589912
+2024-07-01 20:02:29,test_halfcrimp,,I,left/right,117.7762275,128.5050758
+2024-07-01 19:59:05,test_halfcrimp,,I,left/right,131.9444247,139.4037214
+2024-07-01 18:21:22,test_halfcrimp,,I,left/right,128.1541311,138.7313898
+2024-04-01 16:41:27,training_halfcrimp,,I,left/right,128.8392717,130.4023063

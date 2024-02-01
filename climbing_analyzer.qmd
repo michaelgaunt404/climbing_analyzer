@@ -3,13 +3,12 @@ title: "Benchmark Analyzer"
 server: shiny
 format: 
   dashboard:
-    scrolling: true 
+    scrolling: false 
     orientation: rows
 ---
 
 ```{r echo=FALSE, message=FALSE, msg = F, warning = F, error = F}
 #| context: setup
-
 
 library(magrittr)
 library(shiny) 
@@ -32,20 +31,12 @@ targets::tar_source(files = "R")
 ## Input {.fill height = 10%}
 
 ```{r}
-#| panel: input
+# | panel: input
 
 fileInput(
     inputId = "peak_force", label = "Upload Peak Force", multiple = F, accept = ".csv"
   )
 
-# fileInput(
-#     inputId = "rate_force", label = "Upload RFD Data", multiple = F, accept = ".csv"
-#   )
-
-```
-
-## Input {.flow height = 5%}
-```{r}
 uiOutput("peak_force_grip_select")
 ```
 
@@ -79,8 +70,6 @@ peak_force = shiny::reactive({
   
   assign("butt", temp_data, envir = .GlobalEnv)
   
-  # temp_data %>% process_peak_force() %>%  print()
-  
   temp_data  = temp_data %>% 
     process_peak_force()
   
@@ -109,29 +98,37 @@ output$peak_force_grip_select = renderUI({
 })
 
 output$peak_force_trace = renderPlotly({
-  tmp_plot = peak_force_shared() %>%
+  tmp_plot = peak_force_shared() %>% 
       plot_ly(
-        x = ~rep_number, y = ~value, color = ~hand
+        x = ~rep_number, y = ~value , color = ~hand
+        ,text = ~label, hoverinfo = "text"
         ,split = ~grip_type
         ,mode = 'lines+markers') %>%
       layout(
-        xaxis = list(title = "Max Force (lbf)")
-        ,yaxis = list(title = "Rep Number")
-      )
+        yaxis = list(title = "Max Force (lbf)")
+        ,xaxis = list(title = "Rep Number")
+      ) %>% 
+    layout(legend = list(orientation = 'h',x = 0, y = 1.11)) %>% 
+    config(displaylogo = FALSE, modeBarButtonsToRemove = c("toImage", "drawrect", "lasso2d", "zoom2d"))
   
   return(tmp_plot)
 })
 
 output$peak_force_boxplot = renderPlotly({
-  tmp_plot = (peak_force()  %>%
-                ggplot() + 
-                geom_boxplot(aes(value_centered)) + 
-                geom_point(aes(value_centered, 0, color = current_session)) + 
-                labs(color = "Most recent") + 
-                theme(legend.position = "top") + 
-                facet_grid(rows = vars(grip_type))
-              ) %>% 
-    ggplotly()
+  tmp_plot = (
+    peak_force_shared()  %>%
+      ggplot() + 
+      geom_boxplot(aes(grip_type, value)) + 
+      geom_point(aes(grip_type, value, color = session_type, size = session_type)) + 
+      scale_size_discrete(range = c(4, 2)) +
+      labs(color = "Session", size = "Session"
+           ,y = "Max Force (lbf)", x = "") + 
+      theme(legend.position = "top") 
+      # facet_grid(rows = vars(grip_type))
+  ) %>% 
+    ggplotly() %>% 
+    layout(legend = list(orientation = 'h',x = 0, y = 1.1)) %>% 
+    config(displaylogo = FALSE, modeBarButtonsToRemove = c("toImage", "drawrect", "lasso2d", "zoom2d"))
   
   return(tmp_plot)
 })

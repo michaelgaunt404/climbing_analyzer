@@ -18,17 +18,23 @@ process_peak_force = function(data){
     mutate(index = row_number()) %>%
     ungroup() %>%
     group_by(grip_type, hand) %>%
-    mutate(rep_number = row_number()) %>%
-    mutate(value_centered = (scale(value)[,1]) %>% round(2)) %>%
-    ungroup() %>%
+    mutate(rep_number = row_number()
+           ,mean_grip_type_hand = mean(value)
+           ,mean_grip_type_hand_pdiff = round(100*(value-mean_grip_type_hand)/mean_grip_type_hand, 0)
+           ,max_grip_type_hand_pdiff = round(100*(value-max(value))/max(value), 0)
+           ,value_centered = (scale(value)[,1]) %>%
+             round(2)) %>%
     ungroup() %>%
     group_by(date_day) %>%
     mutate(session_number = row_number()) %>%
     ungroup() %>%
-    mutate(current_session = case_when(
-      session_number == max(session_number)~"Latest Session", T~"Past Sessions"
+    group_by(grip_type) %>%
+    mutate(session_type = case_when(
+      date_day == max(date_day)~"Most Recent", T~"Past"
     )) %>%
-    select(grip_type, test_train, hand, value, value_centered, rep_total, date_day, index, rep_number, session_number, current_session)
+    ungroup() %>%
+    mutate(label = str_glue("{grip_type} - {hand}\nForce: {value}Lbf ({value_centered} sd)\n% Off GMean: {mean_grip_type_hand_pdiff}%\n% Off GMax: {max_grip_type_hand_pdiff}%"))  %>%
+    select(grip_type, test_train, hand, value, value_centered, mean_grip_type_hand, mean_grip_type_hand_pdiff, max_grip_type_hand_pdiff, rep_total, date_day, index, rep_number, session_number, session_type, label)
 
   return(temp_data)
 
