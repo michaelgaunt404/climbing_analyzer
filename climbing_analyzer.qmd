@@ -4,21 +4,23 @@ server: shiny
 format: 
   dashboard:
     scrolling: true 
+    orientation: rows
 ---
 
 ```{r echo=FALSE, message=FALSE, msg = F, warning = F, error = F}
 #| context: setup
 
 
-library(gauntlet)
 library(magrittr)
-
-package_load_q = purrr::quietly(gauntlet::package_load)
-
-tmp = c('shiny', 'lubridate'
-  ,"reactable", "reactablefmtr", "crosstalk", "plotly"
-  ,"bslib","bsicons", "htmltools") %>% 
-  package_load_q()
+library(shiny) 
+library(lubridate)
+library(reactable) 
+library(reactablefmtr) 
+library(crosstalk) 
+library(plotly)
+library(bslib) 
+library(bsicons) 
+library(htmltools) 
 
 library(tidyverse, quietly = TRUE)
 
@@ -27,7 +29,7 @@ targets::tar_source(files = "R")
 ```
 
 
-## Quarto
+## Input {.fill height = 10%}
 
 ```{r}
 #| panel: input
@@ -36,15 +38,28 @@ fileInput(
     inputId = "peak_force", label = "Upload Peak Force", multiple = F, accept = ".csv"
   )
 
-fileInput(
-    inputId = "rate_force", label = "Upload RFD Data", multiple = F, accept = ".csv"
-  )
+# fileInput(
+#     inputId = "rate_force", label = "Upload RFD Data", multiple = F, accept = ".csv"
+#   )
 
 ```
 
+## Input {.flow height = 5%}
 ```{r}
-uiOutput("peak_force_trace")
+uiOutput("peak_force_grip_select")
 ```
+
+## Input {.flow height = 40%}
+```{r}
+plotlyOutput("peak_force_trace")
+```
+
+## Input {.flow height = 40%}
+```{r}
+plotlyOutput("peak_force_boxplot")
+```
+
+## Input {.flow height = 40%}
 
 ```{r}
 reactableOutput('table_peak_force')
@@ -72,6 +87,14 @@ peak_force = shiny::reactive({
   return(temp_data)
 })
 
+
+peak_force_shared = shiny::reactive({
+  temp_shared = SharedData$new(peak_force())
+  
+  return(temp_shared)
+})
+
+
 output$table_peak_force <- renderReactable({
   
   tmp_table = peak_force() %>% 
@@ -81,12 +104,38 @@ output$table_peak_force <- renderReactable({
 })
 
 
-output$peak_force_trace = renderUI({
-  tmp_plot = peak_force() %>% 
-    mk_viz_peak_force_trace()
+output$peak_force_grip_select = renderUI({
+  crosstalk::filter_select(id = "peak_force", label = "Grip Type", peak_force_shared(), ~grip_type, multiple = T)
+})
+
+output$peak_force_trace = renderPlotly({
+  tmp_plot = peak_force_shared() %>%
+      plot_ly(
+        x = ~rep_number, y = ~value, color = ~hand
+        ,split = ~grip_type
+        ,mode = 'lines+markers') %>%
+      layout(
+        xaxis = list(title = "Max Force (lbf)")
+        ,yaxis = list(title = "Rep Number")
+      )
   
   return(tmp_plot)
 })
+
+output$peak_force_boxplot = renderPlotly({
+  tmp_plot = (peak_force()  %>%
+                ggplot() + 
+                geom_boxplot(aes(value_centered)) + 
+                geom_point(aes(value_centered, 0, color = current_session)) + 
+                labs(color = "Most recent") + 
+                theme(legend.position = "top") + 
+                facet_grid(rows = vars(grip_type))
+              ) %>% 
+    ggplotly()
+  
+  return(tmp_plot)
+})
+
 
 ```
 
