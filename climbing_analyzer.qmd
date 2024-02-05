@@ -1,5 +1,5 @@
 ---
-title: "Benchmark Analyzer"
+title: "Climbing Benchmark Analyzer"
 server: shiny
 format: 
   dashboard:
@@ -20,6 +20,7 @@ library(plotly)
 library(bslib) 
 library(bsicons) 
 library(htmltools) 
+library(gauntlet)
 
 library(tidyverse, quietly = TRUE)
 
@@ -27,43 +28,50 @@ targets::tar_source(files = "R")
 
 ```
 
-
-## Input {.fill height = 10%}
+## {.toolbar}
 
 ```{r}
-# | panel: input
-
 fileInput(
     inputId = "peak_force", label = "Upload Peak Force", multiple = F, accept = ".csv"
+    ,width = "400px"
   )
 
+shiny::numericInput(
+  inputId = "user_weight", label = "User Weight:", value = 150
+)
+```
+
+```{r}
 uiOutput("peak_force_grip_select")
 ```
 
-## Input {.flow height = 40%}
+## Input {.tabset height = 40%}
+
 ```{r}
+#| title: "LBF"
 plotlyOutput("peak_force_trace")
 ```
 
+```{r}
+#| title: "% Body Weight"
+plotlyOutput("peak_force_trace_wadj")
+```
+
 ## Input {.flow height = 40%}
+
 ```{r}
 plotlyOutput("peak_force_boxplot")
 ```
 
-## Input {.flow height = 40%}
-
-```{r}
-reactableOutput('table_peak_force')
-```
 
 ```{r}
 #| context: server
 
 peak_force = shiny::reactive({
+  req(input$peak_force)
   file <- input$peak_force
   ext <- tools::file_ext(file$datapath)
   
-  req(file)
   validate(need(ext == "csv", "Please upload a csv file"))
   
   temp_data = read.csv(file$datapath)
@@ -78,11 +86,18 @@ peak_force = shiny::reactive({
 
 
 peak_force_shared = shiny::reactive({
-  temp_shared = SharedData$new(peak_force())
+  req(input$user_weight)
+  
+  temp_shared = peak_force() %>% 
+    mutate(across(
+      c(value, rep_total, mean_grip_type_hand)
+      ,~.x/input$user_weight, .names = "{.col}_wadj")) %>% 
+    mutate(value_wadj = value/input$user_weight
+           ,value) %>%  
+    SharedData$new()
   
   return(temp_shared)
 })
-
 
 output$table_peak_force <- renderReactable({
   
@@ -94,7 +109,7 @@ output$table_peak_force <- renderReactable({
 
 
 output$peak_force_grip_select = renderUI({
-  crosstalk::filter_select(id = "peak_force", label = "Grip Type", peak_force_shared(), ~grip_type, multiple = T)
+  crosstalk:::filter_checkbox(id = "peak_force", label = "Grip Type: ", peak_force_shared(), ~grip_type, inline = T)
 })
 
 output$peak_force_trace = renderPlotly({
@@ -106,6 +121,24 @@ output$peak_force_trace = renderPlotly({
         ,mode = 'lines+markers') %>%
       layout(
         yaxis = list(title = "Max Force (lbf)")
+        ,xaxis = list(title = "Rep Number")
+      ) %>% 
+    layout(legend = list(orientation = 'h',x = 0, y = 1.11)) %>% 
+    config(displaylogo = FALSE, modeBarButtonsToRemove = c("toImage", "drawrect", "lasso2d", "zoom2d"))
+  
+  return(tmp_plot)
+})
+
+
+output$peak_force_trace_wadj = renderPlotly({
+  tmp_plot = peak_force_shared() %>% 
+      plot_ly(
+        x = ~rep_number, y = ~value_wadj , color = ~hand
+        ,text = ~label, hoverinfo = "text"
+        ,split = ~grip_type
+        ,mode = 'lines+markers') %>%
+      layout(
+        yaxis = list(title = "% Body Weight")
         ,xaxis = list(title = "Rep Number")
       ) %>% 
     layout(legend = list(orientation = 'h',x = 0, y = 1.11)) %>% 
@@ -134,8 +167,5 @@ output$peak_force_boxplot = renderPlotly({
 })
 
 
+
 ```
-
-
-
-
