@@ -33,12 +33,13 @@ library(tidyverse)
 
 data = here::here(
   'data'
-  ,"peakload_data_left_right_01_02_2024.csv"
+  ,"peakload_data_left_right_26_02_2024.csv"
 ) %>%
   read.csv()
 
 
 temp_data = data %>%
+  # filter(comment == "") %>%
   process_peak_force()
 
 

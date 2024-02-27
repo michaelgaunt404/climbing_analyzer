@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+* {box-sizing: border-box}
+
+/* Set height of body and the document to 100% */
+body, html {
+  height: 100%;
+  margin: 0;
+  font-family: Arial;
+}
+
+/* Style tab links */
+.tablink {
+  background-color: #086A87;
+  color: white;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  font-size: 17px;
+  width: 25%;
+}
+
+.tablink:hover {
+  background-color: #0ca3cf;
+}
+
+/* Style the tab content (and add height:100% for full page content) */
+.tabcontent {
+  color: #484848;
+  display: none;
+  padding: 100px 20px;
+  height: 100%;
+}
+
+</style>
+</head>
+<body>
+
+<button class="tablink" onclick="openPage('Sup!', this, '#0b90b7')"  id="defaultOpen" >Sup!</button>
+<button class="tablink" onclick="openPage('News', this, '#0b90b7')"  >News</button>
+<button class="tablink" onclick="openPage('Contact', this, '#0b90b7')"  >Contact</button>
+<button class="tablink" onclick="openPage('Data Privacy', this, '#0b90b7')"  >Data Privacy</button>
+
+<div id="Sup!" class="tabcontent">
+
+<h1 style="text-align: center;">Finger Strength Analyzer</h1>
+<h4 style="text-align: center;">An interactive, web-based tool to analyze tindeq finger board data.</h4>
+<hr/>
+
+<img src="www/cube_cute.jpg" alt="cute_transit" style="float:right;height:200px;>
+
+<p style="text-align: left;">&nbsp;<strong>What you can do with this application:</strong></p>
+<ul>
+<li style="text-align: left;">Visualize tindeq outputs.&nbsp;</li>
+<li style="text-align: left;">Ready to send? Compare your realtime output to your past performance history.&nbsp;</li>
+<li style="text-align: left;">Making progress? Track changes in your performance overtime.&nbsp;</li>
+
+</ul>
+
+<p style="text-align: left;">&nbsp;<strong>How this application works:</strong></p>
+<ul>
+<li style="text-align: left;">Users upload data measured by tindeq to the application.&nbsp;</li>
+<li style="text-align: left;">The application crunches some numbers and returns the user with usefull perfromance statistics.&nbsp;</li>
+<li style="text-align: left;">Tindeq data and statistics are returnted to the user via interactive visualizations.&nbsp;</li>
+</ul>
+
+
+<p style="text-align: left;">
+<strong>I hope this application helps you crush harder!!</strong> &#129495 &#9968 &#9968 &#129305 &#129305
+</p>
+
+<hr/>
+
+<p style="text-align: center;"><span style="color: #000000;"> For support, issue reporting, or for features you'd like to see - contact: michael.gaunt@wsp.com or vist the project <a href="https://github.com/michaelgaunt404/climbing_analyzer">GIT repo</a></span></p>
+</div>
+
+<div id="Data Privacy" class="tabcontent">
+<p style="text-align: left;">&nbsp;<strong>How does this application use my (your) data?</strong></p>
+<ul>
+<li style="text-align: left;">This application does not save your data in anyway.&nbsp;</li>
+<li style="text-align: left;">Once you close the application your data dies with the session.&nbsp;</li>
+</ul>
+</div>
+
+<div id="News" class="tabcontent">
+  <h3>News</h3>
+  <p>None yet foo!</p>
+</div>
+
+
+<script>
+function openPage(pageName,elmnt,color) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablink");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].style.backgroundColor = "";
+  }
+  document.getElementById(pageName).style.display = "block";
+  elmnt.style.backgroundColor = color;
+}
+
+// Get the element with id="defaultOpen" and click on it
+document.getElementById("defaultOpen").click();
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<body>
+
+
+</body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</html>
+
+

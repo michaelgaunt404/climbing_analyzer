@@ -34,7 +34,7 @@ process_peak_force = function(data){
     )) %>%
     ungroup() %>%
     mutate(label = str_glue("{grip_type} - {hand}\nForce: {value}Lbf ({value_centered} sd)\n% Off GMean: {mean_grip_type_hand_pdiff}%\n% Off GMax: {max_grip_type_hand_pdiff}%"))  %>%
-    select(grip_type, test_train, hand, value, value_centered, mean_grip_type_hand, mean_grip_type_hand_pdiff, max_grip_type_hand_pdiff, rep_total, date_day, index, rep_number, session_number, session_type, label)
+    select(grip_type, test_train, hand, value, value_centered, mean_grip_type_hand, mean_grip_type_hand_pdiff, max_grip_type_hand_pdiff, rep_total, date_day, index, rep_number, session_number, session_type, label, comment)
 
   return(temp_data)
 

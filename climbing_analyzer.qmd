@@ -20,7 +20,8 @@ library(plotly)
 library(bslib) 
 library(bsicons) 
 library(htmltools) 
-library(gauntlet)
+library(bayesboot)
+# library(gauntlet)
 
 library(tidyverse, quietly = TRUE)
 
@@ -31,6 +32,9 @@ targets::tar_source(files = "R")
 ## {.toolbar}
 
 ```{r}
+
+actionButton(inputId = "button", "Welcome\nHelp")
+
 fileInput(
     inputId = "peak_force", label = "Upload Peak Force", multiple = F, accept = ".csv"
     ,width = "400px"
@@ -45,27 +49,48 @@ shiny::numericInput(
 uiOutput("peak_force_grip_select")
 ```
 
-## Input {.tabset height = 40%}
+## Input {.tabset}
 
+### LBF
 ```{r}
-#| title: "LBF"
 plotlyOutput("peak_force_trace")
 ```
 
+### % Body Weight
 ```{r}
-#| title: "% Body Weight"
 plotlyOutput("peak_force_trace_wadj")
 ```
 
-## Input {.flow height = 40%}
+## {-}
+
+## Input {height = 40%}
 
 ```{r}
 plotlyOutput("peak_force_boxplot")
 ```
 
+## Input {height = 40%}
+```{r}
+plotlyOutput("peak_force_boots")
+```
+
+
 
 ```{r}
 #| context: server
+
+  #SECTION: data initialization=================================================
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  shiny::observeEvent(input$button, {
+    shiny::showModal(
+      shiny::modalDialog(
+        # "hello",
+        includeHTML("./inst/app/www/modal_intro.html"),
+        size = "l",
+        easyClose = TRUE
+      ))
+  })
+
 
 peak_force = shiny::reactive({
   req(input$peak_force)
@@ -84,6 +109,14 @@ peak_force = shiny::reactive({
   return(temp_data)
 })
 
+peak_force_boots = shiny::reactive({
+  print("boots")
+  temp_data = peak_force() %>% 
+    process_boots()
+  
+  return(temp_data)
+})
+
 
 peak_force_shared = shiny::reactive({
   req(input$user_weight)
@@ -91,9 +124,8 @@ peak_force_shared = shiny::reactive({
   temp_shared = peak_force() %>% 
     mutate(across(
       c(value, rep_total, mean_grip_type_hand)
-      ,~.x/input$user_weight, .names = "{.col}_wadj")) %>% 
-    mutate(value_wadj = value/input$user_weight
-           ,value) %>%  
+      ,~100*round(.x/input$user_weight, 2), .names = "{.col}_wadj")) %>% 
+    mutate(label_wadj = str_glue("{grip_type}\n% BW: {value_wadj}%\n% BW Rep: {rep_total_wadj}"))  %>%
     SharedData$new()
   
   return(temp_shared)
@@ -129,12 +161,11 @@ output$peak_force_trace = renderPlotly({
   return(tmp_plot)
 })
 
-
 output$peak_force_trace_wadj = renderPlotly({
   tmp_plot = peak_force_shared() %>% 
       plot_ly(
-        x = ~rep_number, y = ~value_wadj , color = ~hand
-        ,text = ~label, hoverinfo = "text"
+        x = ~rep_number, y = ~value_wadj, color = ~hand
+        ,text = ~label_wadj, hoverinfo = "text"
         ,split = ~grip_type
         ,mode = 'lines+markers') %>%
       layout(
@@ -167,5 +198,13 @@ output$peak_force_boxplot = renderPlotly({
 })
 
 
+
+output$peak_force_boots = renderPlotly({
+  tmp_plot = plot_boots(
+    peak_force_boots()
+  )
+  
+  return(tmp_plot)
+})
 
 ```
